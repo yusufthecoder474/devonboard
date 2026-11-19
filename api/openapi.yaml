@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info: { title: DevOnboard API, version: 1.0.0 }
+servers: [{ url: http://localhost:4000 }]
+paths:
+  /api/auth/signup: { post: { summary: Signup, requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { email: { type: string }, password: { type: string }, role: { type: string, enum: [DEVELOPER, ADMIN] } }, required: [email, password] } } } }, responses: { "201": { description: Created } } } }
+  /api/auth/login: { post: { summary: Login, requestBody: { required: true, content: { application/json: { schema: { type: object, properties: { email: { type: string }, password: { type: string } }, required: [email, password] } } } }, responses: { "200": { description: OK } } } }
+  /api/auth/me: { get: { summary: Current user, responses: { "200": { description: OK } } } }
+  /api/keys: { get: { summary: List keys, responses: { "200": { description: OK } } }, post: { summary: Create key, responses: { "201": { description: Created } } } }
+  /api/keys/{id}/revoke: { post: { summary: Revoke key, responses: { "200": { description: OK } } } }
+  /api/keys/{id}/rotate: { post: { summary: Rotate key, responses: { "201": { description: Created } } } }
+  /api/dashboard: { get: { summary: Usage dashboard, responses: { "200": { description: OK } } } }
+  /api/admin/funnel: { get: { summary: Funnel and experiment (admin), responses: { "200": { description: OK } } } }
+  /api/events: { post: { summary: Record event, responses: { "201": { description: Created } } } }
+  /v1/echo: { post: { summary: Sandbox echo, responses: { "200": { description: OK } } } }
+  /v1/text-stats: { post: { summary: Sandbox text stats, responses: { "200": { description: OK } } } }
