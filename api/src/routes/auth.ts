@@ -4,13 +4,15 @@ import { prisma } from '../db.js';
 import { hashPw, checkPw, signToken, setCookie, auth, type AuthedReq } from '../auth.js';
 import { assignVariant } from '../stats.js';
 const router = Router();
-const schema = z.object({ email: z.string().email(), password: z.string().min(8), role: z.enum(['DEVELOPER', 'ADMIN']).optional() });
+// Signup always creates DEVELOPER. `role` is not accepted from the client:
+// only the seed script may create an ADMIN (see prisma/seed.ts).
+const schema = z.object({ email: z.string().email(), password: z.string().min(8) });
 router.post('/signup', async (req, res) => {
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: { code: 'VALIDATION', message: parsed.error.issues.map(i => i.message).join(', ') } });
-  const { email, password, role } = parsed.data;
+  const { email, password } = parsed.data;
   if (await prisma.user.findUnique({ where: { email } })) return res.status(409).json({ error: { code: 'CONFLICT', message: 'Email already registered' } });
-  const user = await prisma.user.create({ data: { email, passwordHash: await hashPw(password), role: role || 'DEVELOPER' } });
+  const user = await prisma.user.create({ data: { email, passwordHash: await hashPw(password), role: 'DEVELOPER' } });
   const variant = assignVariant(user.id);
   await prisma.experimentAssignment.create({ data: { userId: user.id, variant } });
   await prisma.event.create({ data: { userId: user.id, type: 'signup' } });

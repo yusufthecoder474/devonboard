@@ -1,8 +1,1 @@
-{
-  "compilerOptions": {
-    "target": "ES2022", "module": "NodeNext", "moduleResolution": "NodeNext",
-    "outDir": "dist", "rootDir": "src", "strict": true, "esModuleInterop": true,
-    "skipLibCheck": true, "forceConsistentCasingInFileNames": true
-  },
-  "include": ["src", "prisma/seed.ts", "tests"]
-}
+{"compilerOptions":{"esModuleInterop":true,"forceConsistentCasingInFileNames":true,"module":"NodeNext","moduleResolution":"NodeNext","noEmit":true,"outDir":"dist","skipLibCheck":true,"strict":true,"target":"ES2022"},"include":["src","prisma/seed.ts","prisma/seed-reset.ts","tests"]}

@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 function rng(seed: number) { let a = seed; return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const rand = rng(42);
 const hash = bcrypt.hashSync('Password123!', 10);
+// Idempotent: never wipe on boot. Run `npm run seed:reset` to wipe on purpose.
 async function main() {
-  await prisma.event.deleteMany(); await prisma.apiCall.deleteMany();
-  await prisma.apiKey.deleteMany(); await prisma.experimentAssignment.deleteMany(); await prisma.user.deleteMany();
+  if (await prisma.user.count() > 0) { console.log('Seed skipped: users already exist (use npm run seed:reset to wipe and reseed).'); return; }
   const admin = await prisma.user.create({ data: { email: 'admin@devonboard.test', passwordHash: hash, role: 'ADMIN' } });
   await prisma.experimentAssignment.create({ data: { userId: admin.id, variant: 'A' } });
   for (let i = 0; i < 500; i++) {
@@ -17,7 +17,9 @@ async function main() {
     const u = await prisma.user.create({ data: { email: `dev${i}@example.test`, passwordHash: hash, createdAt: signup } });
     await prisma.experimentAssignment.create({ data: { userId: u.id, variant, createdAt: signup } });
     await prisma.event.create({ data: { userId: u.id, type: 'signup', createdAt: signup } });
-    const pKey = 0.62 + (variant === 'B' ? 0.08 : 0);
+    // Same conversion probabilities for A and B: the synthetic data must
+    // not pre-decide a winner. The z-test on it is a demo only.
+    const pKey = 0.62;
     if (rand() > pKey) continue;
     const t1 = new Date(signup.getTime() + Math.floor(rand() * 3600000));
     await prisma.event.create({ data: { userId: u.id, type: 'key_created', createdAt: t1 } });

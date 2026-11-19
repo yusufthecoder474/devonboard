@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import type { Request, Response, NextFunction } from 'express';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set when NODE_ENV=production');
+}
 export const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 export const hashPw = (p: string) => bcrypt.hash(p, 10);
 export const checkPw = (p: string, h: string) => bcrypt.compare(p, h);

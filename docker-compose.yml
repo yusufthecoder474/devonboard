@@ -9,14 +9,18 @@ services:
     build: ./api
     environment:
       DATABASE_URL: postgresql://devonboard:devonboard@db:5432/devonboard?schema=public
-      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret}
+      JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
       CORS_ORIGIN: http://localhost:5173
       PORT: "4000"
     ports: ["4000:4000"]
     depends_on: { db: { condition: service_healthy } }
     command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
   web:
-    build: ./web
+    build:
+      context: ./web
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:4000}
     ports: ["5173:80"]
     depends_on: [api]
 volumes: { pgdata: {} }

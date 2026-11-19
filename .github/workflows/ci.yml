@@ -12,6 +12,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://devonboard:devonboard@localhost:5432/devonboard?schema=public
       JWT_SECRET: ci-test-secret
+      NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
